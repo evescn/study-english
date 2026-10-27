@@ -1,0 +1,22 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "ABC 字母乐园"
+      }
+    },
+    {
+      "path": "pages/letter/letter",
+      "style": {
+        "navigationBarTitleText": "📚 字母学习"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "ABC 字母乐园",
+    "navigationBarBackgroundColor": "#4A90D9",
+    "backgroundColor": "#FFF8F0"
+  }
+}
