@@ -6,12 +6,14 @@ let currentInner = null
 let currentMusic = null
 
 const AUDIO_BASE = '/static/audio/'
+const PHONICS_BASE = '/static/audio/phonics/'
 
 function audioUrl(text) {
   const t = text.trim()
   if (/^Big [A-Z]$/.test(t)) return `${AUDIO_BASE}big-${t.slice(4).toLowerCase()}.mp3`
   if (/^Small [a-z]$/.test(t)) return `${AUDIO_BASE}small-${t.slice(6).toLowerCase()}.mp3`
-  return `${AUDIO_BASE}${t.toLowerCase().replace(/\s+/g, '-')}.mp3`
+  const slug = t.toLowerCase().replace(/[,.?!']/g, '').replace(/\s+/g, '-')
+  return `${AUDIO_BASE}${slug}.mp3`
 }
 
 function refreshVoices() {
@@ -64,48 +66,103 @@ function notifyUnsupported() {
   // #endif
 }
 
+function releaseInner(inner) {
+  try {
+    inner.stop()
+    inner.destroy()
+  } catch (err) {}
+}
+
+function playHtmlAudio(url, fallbackText) {
+  if (typeof Audio === 'undefined') return false
+  try {
+    if (currentAudio) {
+      currentAudio.pause()
+      currentAudio = null
+    }
+    const audio = new Audio(url)
+    currentAudio = audio
+    audio.volume = 1
+    audio.onended = () => {
+      if (currentAudio === audio) currentAudio = null
+    }
+    audio.play().catch((err) => {
+      // 被下一个音源/停止操作打断属正常，不触发 TTS 兜底
+      if (err && err.name === 'AbortError') return
+      speakFallback(fallbackText)
+    })
+    return true
+  } catch (err) {
+    return false
+  }
+}
+
 function playUrl(url, fallbackText) {
-  // 1) uni 音频 API（App / H5 / 小程序通用）
+  // #ifdef H5
+  // H5 优先用原生 Audio：可捕获 play() 中断，避免控制台报错与误触发 TTS
+  if (playHtmlAudio(url, fallbackText)) return
+  // #endif
+  // 1) uni 音频 API（App / 小程序）
   if (typeof uni !== 'undefined' && uni.createInnerAudioContext) {
     try {
       if (currentInner) {
-        currentInner.stop()
-        currentInner.destroy()
+        releaseInner(currentInner)
         currentInner = null
       }
       const inner = uni.createInnerAudioContext()
       currentInner = inner
       inner.src = url
       inner.volume = 1
+      inner.onEnded(() => {
+        if (currentInner === inner) currentInner = null
+        releaseInner(inner)
+      })
+      inner.onError(() => {
+        if (currentInner === inner) currentInner = null
+        releaseInner(inner)
+        speakFallback(fallbackText)
+      })
       inner.play()
       return
     } catch (err) {
       // 继续尝试 HTML5 Audio
     }
   }
-  // 2) HTML5 Audio 兜底（H5 浏览器）
-  if (typeof Audio !== 'undefined') {
-    try {
-      if (currentAudio) {
-        currentAudio.pause()
-        currentAudio = null
-      }
-      const audio = new Audio(url)
-      currentAudio = audio
-      audio.volume = 1
-      audio.play().catch(() => speakFallback(fallbackText))
-      return
-    } catch (err) {
-      speakFallback(fallbackText)
-      return
-    }
-  }
+  // 2) HTML5 Audio 兜底（非 H5 平台）
+  if (playHtmlAudio(url, fallbackText)) return
   // 3) 浏览器 TTS 最后兜底（仅 H5）
   speakFallback(fallbackText)
 }
 
 export function speak(text) {
   playUrl(audioUrl(text), text)
+}
+
+// 播放字母本身的自然拼读音素（Aa/Bb... 共用同一个音）
+export function speakLetterSound(letter, fallbackText) {
+  const key = String(letter || '').toLowerCase()
+  if (!/^[a-z]$/.test(key)) return
+  playUrl(`${PHONICS_BASE}${key}.mp3`, fallbackText || key)
+}
+
+// 立即停止当前朗读（离开页面时调用，避免声音继续播放）
+export function stopAudio() {
+  if (currentInner) {
+    releaseInner(currentInner)
+    currentInner = null
+  }
+  if (currentAudio) {
+    try {
+      currentAudio.pause()
+      currentAudio.currentTime = 0
+    } catch (err) {}
+    currentAudio = null
+  }
+  // #ifdef H5
+  if (typeof window !== 'undefined' && window.speechSynthesis) {
+    window.speechSynthesis.cancel()
+  }
+  // #endif
 }
 
 // 字母学习完成的中文打卡语音 + 胜利音乐：恭喜你字母X打卡成功，可前往下一个字母Y

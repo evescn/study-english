@@ -78,7 +78,7 @@
 
 <script>
 import { LETTERS } from '@/data/letters.js'
-import { speak, speakCongrats, stopVictoryMusic } from '@/animations/audio.js'
+import { speak, speakCongrats, stopAudio, stopVictoryMusic } from '@/animations/audio.js'
 
 const CONFETTI_CHARS = ['🎉', '✨', '⭐', '🎊', '💖']
 
@@ -87,6 +87,7 @@ export default {
     return {
       index: 0,
       letter: null,
+      locked: false,
       plays: [0, 0, 0],
       playing: [false, false, false],
       bubbles: [],
@@ -105,8 +106,9 @@ export default {
     this.index = i >= 0 ? i : 0
     this.setLetter()
     if (this.isLocked(this.letter.letter)) {
+      this.locked = true
       uni.showToast({ title: '请先学完前面的字母才能解锁', icon: 'none' })
-      setTimeout(() => {
+      this.schedule(() => {
         uni.navigateBack({
           fail: () => uni.reLaunch({ url: '/pages/index/index' }),
         })
@@ -114,9 +116,28 @@ export default {
     }
   },
   onUnload() {
+    this.clearTimers()
+    stopAudio()
     stopVictoryMusic()
   },
   methods: {
+    schedule(fn, ms) {
+      this._timers = this._timers || []
+      const id = setTimeout(() => {
+        this._timers = (this._timers || []).filter((t) => t !== id)
+        fn()
+      }, ms)
+      this._timers.push(id)
+      return id
+    },
+    clearTimers() {
+      const timers = this._timers || []
+      timers.forEach(clearTimeout)
+      this._timers = []
+      const spkTimers = this._spkTimers || []
+      spkTimers.forEach(clearTimeout)
+      this._spkTimers = []
+    },
     isLetterCompleted(letter) {
       const completed = uni.getStorageSync('completed') || {}
       return !!completed[letter]
@@ -138,6 +159,8 @@ export default {
       }
     },
     setLetter() {
+      this.clearTimers()
+      this.locked = false
       this.letter = LETTERS[this.index]
       this.plays = [0, 0, 0]
       this.playing = [false, false, false]
@@ -151,9 +174,11 @@ export default {
       uni.setStorageSync('visited', visited)
     },
     sayLetter() {
+      if (this.locked) return
       speak(`Big ${this.letter.letter}`)
     },
     sayLower() {
+      if (this.locked) return
       speak(`Small ${this.letter.lower}`)
     },
     flashSpeaker(i) {
@@ -165,12 +190,14 @@ export default {
       }, 1700)
     },
     playWord(i) {
+      if (this.locked) return
       this.plays[i] += 1
       this.flashSpeaker(i)
       speak(this.letter.words[i].word)
       this.checkCelebrate()
     },
     playAll() {
+      if (this.locked) return
       const run = (i) => {
         if (i >= 3) {
           this.checkCelebrate()
@@ -179,7 +206,7 @@ export default {
         this.plays[i] += 1
         this.flashSpeaker(i)
         speak(this.letter.words[i].word)
-        setTimeout(() => run(i + 1), 1700)
+        this.schedule(() => run(i + 1), 1700)
       }
       run(0)
     },
@@ -188,7 +215,7 @@ export default {
         const completed = uni.getStorageSync('completed') || {}
         if (!completed[this.letter.letter]) {
           this.markCompleted()
-          setTimeout(() => {
+          this.schedule(() => {
             speakCongrats(this.letter.letter)
           }, 700)
         }
@@ -200,21 +227,32 @@ export default {
           char: CONFETTI_CHARS[i % CONFETTI_CHARS.length],
           style: `left:${5 + Math.random() * 90}%; animation-delay:${(Math.random() * 1.2).toFixed(2)}s; font-size:${30 + Math.random() * 26}rpx;`,
         }))
-        setTimeout(() => {
+        this.schedule(() => {
           this.celebrate = false
         }, 2800)
       }
     },
     go(direction) {
+      if (this.locked) return
       if (direction === 'next') {
-        const nextIndex = (this.index + 1) % 26
+        if (this.index >= LETTERS.length - 1) {
+          uni.showToast({ title: '已经是最后一个字母啦', icon: 'none' })
+          return
+        }
+        const nextIndex = this.index + 1
         if (this.isLocked(LETTERS[nextIndex].letter)) {
           uni.showToast({ title: '先学完当前字母才能解锁下一个哦', icon: 'none' })
           return
         }
+        stopAudio()
         this.index = nextIndex
       } else {
-        this.index = (this.index + 25) % 26
+        if (this.index <= 0) {
+          uni.showToast({ title: '已经是第一个字母啦', icon: 'none' })
+          return
+        }
+        stopAudio()
+        this.index -= 1
       }
       this.setLetter()
     },

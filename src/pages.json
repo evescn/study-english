@@ -11,6 +11,18 @@
       "style": {
         "navigationBarTitleText": "📚 字母学习"
       }
+    },
+    {
+      "path": "pages/lesson/lesson",
+      "style": {
+        "navigationBarTitleText": "课时详情"
+      }
+    },
+    {
+      "path": "pages/unit/unit",
+      "style": {
+        "navigationBarTitleText": "单元大纲"
+      }
     }
   ],
   "globalStyle": {

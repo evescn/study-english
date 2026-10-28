@@ -222,3 +222,35 @@ study-english/
 1. 确认技术方案（推荐 uni-app，Vue 语法）
 2. 确认单词表（可调整 78 个词）
 3. 开始一期步骤 1：搭建 uni-app 脚手架 + 字母地图页
+
+## 十一、Midi1 课时模块（家长端课程视图）
+
+> 数据源：`src/data/lessons.js`（以该文件为准）。课时 Tab：`src/components/LessonHome.vue`；课时详情：`src/pages/lesson/lesson.vue`；单元大纲：`src/pages/unit/unit.vue`。
+
+### 5 单元大纲
+
+| 单元 | 主题 | 重点词汇 | 核心句型 / 对话 | 自然拼读 | 绘本 |
+| --- | --- | --- | --- | --- | --- |
+| U1 Where is My Tail? 我的尾巴在哪里？ | 身体部位 | eye, nose, mouth, ears, face, head, body, hands, feet, tail | I have a nose / two eyes. I am a girl / boy.；What's your name? — I am _. | Aa Bb Cc | Where is My Tail? |
+| U2 My Birthday Party 我的生日派对 | 生日派对 | balloons, presents, ribbons, sweets, ice cream, jello, birthday cake, sandwiches, party | There is jello. / There are balloons.；How old are you? — I am _ years old. | Dd Ee Ff | My Birthday Party |
+| U3 I Love My Family 我爱我的家 | 家庭成员与活动 | grandfather, grandmother, father, mother, brother, sister；cook, read, cycle, shop, dance, play | What do you like to do? / I like to _ with _. | Gg Hh Ii | I Love My Family |
+| U4 The New Me 全新的我 | 衣物、新旧 | shirt, skirt, shorts, hat, socks, shoes；new, old；this, that, these, those | It's a new shirt. / It's an old hat.；Put on that new _. / Take off this old _. | Jj Kk Ll | The New Me |
+| U5 Colors Around Us 我们身边的颜色 | 颜色 | red, blue, yellow, green, black, white, orange, brown, purple, pink, rainbow；sky, leaf, sun, ball | What color is it? — It is _.；Where is the _? — Here is the _. | Mm Nn Oo | Colors Around Us |
+
+### 11 节课时索引
+
+| 课 | 单元 | 主题 | 复习 | 新学 | 拼读 | 作业 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 预备 | 课堂口令与身体部位 | — | eyes, nose, ears；英文名；课堂规则 | — | 视频私发 Lucy，+10 积分 |
+| 2 | 预备 | 身体部位与自我介绍 | ears, eyes, nose | head, mouth | — | 录视频 + 问答 |
+| 3 | 预备 | 身体部位与性别问答 | ears, eyes, nose, head, mouth | feet | — | 录视频 + 两组问答 |
+| 4 | U1 | 字母 Aa 拼读 | Unit 1 主题词 | apple, ant, angry | Aa | 看老师视频后录视频 |
+| 5 | U1 | 身体部位扩展 | Unit 1 主题词 + Aa | body, face, hands | — | 录视频；区分 face / feet |
+| 6 | U1 | 字母 Bb 拼读 | 身体部位 + Aa | bee, banana, boy | Bb | 录视频 |
+| 7 | U1 | 绘本句子 I have... | 身体部位 + Aa/Bb/Cc | 绘本句 I have eyes/ears/hands too. | Aa/Bb/Cc 复习 | 指读 + 录视频 |
+| 8 | U1 | Unit 1 单元测评 | Unit 1 全部 | 单元小测评 | Aa/Bb/Cc 复习 | 录复习视频 |
+| 9 | U2 | 生日派对主题词 | — | balloons, party hats, ribbons | — | 录视频，+10 积分 |
+| 10 | U2 | 字母 Dd 拼读 | Unit 2 主题词 | dog, duck, desk | Dd | 录视频，+10 积分 |
+| 11 | U2 | 生日派对主题词 2 | — | sweets, sandwiches, presents | — | 录视频，+10 积分 |
+
+> 说明：课时 7/8 提到 Cc，但暂无独立 Cc 课时原文，按「Aa/Bb/Cc 合并复习」呈现。Unit 3–5 已展示教学目标，课堂记录待开课后补充。

@@ -60,6 +60,9 @@
       </view>
     </view>
 
+    <!-- 课时模块 -->
+    <lesson-home v-else-if="activeTab === 'lessons'" />
+
     <!-- 句子模块 -->
     <view v-else-if="activeTab === 'sentences'" class="module">
       <view class="module-head">
@@ -112,7 +115,9 @@
 
 <script>
 import { LETTERS } from '@/data/letters.js'
+import LessonHome from '@/components/LessonHome.vue'
 export default {
+  components: { LessonHome },
   data() {
     return {
       letters: LETTERS,
@@ -120,8 +125,9 @@ export default {
       completed: {},
       titleChars: ['A', 'B', 'C'],
       titleColors: ['#FF6B6B', '#FF9F43', '#26DE81'],
-      activeTab: 'letters',
+      activeTab: 'lessons',
       tabs: [
+        { key: 'lessons', icon: '📚', img: '', label: '课时' },
         { key: 'letters', icon: '🔤', img: '/static/icon/tab-letters.png', label: '字母' },
         { key: 'sentences', icon: '📖', img: '/static/icon/tab-sentences.png', label: '句子' },
         { key: 'videos', icon: '🎬', img: '/static/icon/tab-video.png', label: '视频' },
