@@ -211,6 +211,68 @@ export const UNITS = [
   },
 ]
 
+const BODY_EXTRA_WORDS = [
+  { word: 'body', zh: '身体', emoji: '🧍' },
+  { word: 'face', zh: '脸', emoji: '😊' },
+  { word: 'hands', zh: '手', emoji: '✋' },
+]
+
+const BODY_WORDS = [
+  { word: 'eye', zh: '眼睛', emoji: '👁️' },
+  { word: 'nose', zh: '鼻子', emoji: '👃' },
+  { word: 'mouth', zh: '嘴巴', emoji: '👄' },
+  { word: 'ears', zh: '耳朵', emoji: '👂' },
+  { word: 'face', zh: '脸', emoji: '😊' },
+  { word: 'head', zh: '头', emoji: '🙂' },
+  { word: 'body', zh: '身体', emoji: '🧍' },
+  { word: 'hands', zh: '手', emoji: '✋' },
+  { word: 'feet', zh: '脚', emoji: '🦶' },
+]
+
+const AA_WORDS = [
+  { word: 'apple', zh: '苹果', emoji: '🍎' },
+  { word: 'ant', zh: '蚂蚁', emoji: '🐜' },
+  { word: 'angry', zh: '生气的', emoji: '😠' },
+]
+
+const BB_WORDS = [
+  { word: 'bee', zh: '蜜蜂', emoji: '🐝' },
+  { word: 'banana', zh: '香蕉', emoji: '🍌' },
+  { word: 'boy', zh: '男孩', emoji: '👦' },
+]
+
+const UNIT1_REVIEW_WORDS = [...BODY_WORDS, ...AA_WORDS, ...BB_WORDS]
+
+const ORAL_SENTENCES = [
+  { en: "What's your name?", zh: '你叫什么名字？' },
+  { en: "I'm Zero.", zh: '我是 Zero。' },
+  { en: 'Are you a boy or a girl?', zh: '你是男生还是女生？' },
+  { en: "I'm a boy / girl.", zh: '我是男生 / 女生。' },
+]
+
+const BOOK_SENTENCES = [
+  { en: 'I have eyes / ears / hands too.', zh: '我也有眼睛 / 耳朵 / 手。' },
+  { en: 'I have a mouth / nose too.', zh: '我也有嘴巴 / 鼻子。' },
+]
+
+const PARTY_WORDS_1 = [
+  { word: 'balloons', zh: '气球', emoji: '🎈' },
+  { word: 'party hats', zh: '派对帽', emoji: '🥳' },
+  { word: 'ribbons', zh: '丝带', emoji: '🎀' },
+]
+
+const DD_WORDS = [
+  { word: 'dog', zh: '狗', emoji: '🐶' },
+  { word: 'duck', zh: '鸭子', emoji: '🦆' },
+  { word: 'desk', zh: '课桌', emoji: '🪑' },
+]
+
+const PARTY_WORDS_2 = [
+  { word: 'sweets', zh: '糖果', emoji: '🍬' },
+  { word: 'sandwiches', zh: '三明治', emoji: '🥪' },
+  { word: 'presents', zh: '礼物', emoji: '🎁' },
+]
+
 export const LESSONS = [
   {
     id: 1,
@@ -297,7 +359,7 @@ export const LESSONS = [
     commands: [],
     sentences: [
       { en: "What's your name?", zh: '你叫什么名字？' },
-      { en: "I'm ___.", zh: '我是___。' },
+      { en: "I'm Zero.", zh: '我是 Zero。' },
       { en: 'Are you a boy or a girl?', zh: '你是男生还是女生？' },
       { en: "I'm a boy / girl.", zh: '我是男生 / 女生。' },
     ],
@@ -321,11 +383,7 @@ export const LESSONS = [
     tags: ['新授'],
     reviewNote: 'Unit 1 主题单词',
     reviewWords: [],
-    newWords: [
-      { word: 'apple', zh: '苹果', emoji: '🍎' },
-      { word: 'ant', zh: '蚂蚁', emoji: '🐜' },
-      { word: 'angry', zh: '生气的', emoji: '😠' },
-    ],
+    newWords: AA_WORDS,
     phonics: { letters: ['Aa'], note: 'big A, small a · A A A a a a' },
     commands: [],
     sentences: [],
@@ -347,13 +405,10 @@ export const LESSONS = [
     title: '身体部位扩展',
     focus: ['Unit 1 主题单词', '身体部位', 'face / feet 辨析'],
     tags: ['复习', '新授'],
-    reviewNote: 'Unit 1 主题单词 + 字母 Aa',
-    reviewWords: [],
-    newWords: [
-      { word: 'body', zh: '身体', emoji: '🧍' },
-      { word: 'face', zh: '脸', emoji: '😊' },
-      { word: 'hands', zh: '手', emoji: '✋' },
-    ],
+    reviewNote: 'Unit 1 主题单词 + 课时 4：字母 Aa 与代表单词',
+    reviewWords: AA_WORDS,
+    reviewPhonics: ['Aa'],
+    newWords: BODY_EXTRA_WORDS,
     phonics: { letters: [], note: '' },
     commands: [],
     sentences: [],
@@ -374,13 +429,10 @@ export const LESSONS = [
     title: '字母 Bb 拼读',
     focus: ['身体部位复习', '字母 Bb', '代表单词'],
     tags: ['复习', '新授'],
-    reviewNote: '身体部位主题词汇 + 字母 Aa',
-    reviewWords: [],
-    newWords: [
-      { word: 'bee', zh: '蜜蜂', emoji: '🐝' },
-      { word: 'banana', zh: '香蕉', emoji: '🍌' },
-      { word: 'boy', zh: '男孩', emoji: '👦' },
-    ],
+    reviewNote: '身体部位主题词汇（body / face / hands）+ 课时 5：字母 Aa',
+    reviewWords: BODY_EXTRA_WORDS,
+    reviewPhonics: ['Aa'],
+    newWords: BB_WORDS,
     phonics: { letters: ['Bb'], note: 'big B, small b · B B B b b b' },
     commands: [],
     sentences: [],
@@ -402,14 +454,14 @@ export const LESSONS = [
     focus: ['绘本句子', '指读习惯', 'Aa / Bb / Cc 复习'],
     tags: ['复习', '新授'],
     reviewNote: '身体部位 + 字母 Aa / Bb / Cc + 口语句子',
-    reviewWords: [],
+    reviewWords: UNIT1_REVIEW_WORDS,
+    reviewPhonics: ['Aa', 'Bb', 'Cc'],
+    reviewPhonicsNote: 'Cc 合并复习',
+    reviewSentences: ORAL_SENTENCES,
     newWords: [],
-    phonics: { letters: ['Aa', 'Bb', 'Cc'], note: 'Cc 合并复习' },
+    phonics: { letters: [], note: '' },
     commands: [],
-    sentences: [
-      { en: 'I have eyes / ears / hands too.', zh: '我也有眼睛 / 耳朵 / 手。' },
-      { en: 'I have a mouth / nose too.', zh: '我也有嘴巴 / 鼻子。' },
-    ],
+    sentences: BOOK_SENTENCES,
     objectives: [
       '能完整输出绘本句子',
       '手随口动，读到哪里指到哪里，培养指读习惯',
@@ -428,9 +480,12 @@ export const LESSONS = [
     focus: ['Unit 1 全面复习', '单元小测评'],
     tags: ['复习', '测评'],
     reviewNote: 'Unit 1 全部：单词 / 字母 / 口语句子 / 绘本',
-    reviewWords: [],
+    reviewWords: UNIT1_REVIEW_WORDS,
+    reviewPhonics: ['Aa', 'Bb', 'Cc'],
+    reviewPhonicsNote: 'Cc 合并复习',
+    reviewSentences: [...ORAL_SENTENCES, ...BOOK_SENTENCES],
     newWords: [],
-    phonics: { letters: ['Aa', 'Bb', 'Cc'], note: '复习' },
+    phonics: { letters: [], note: '' },
     commands: [],
     sentences: [],
     objectives: ['复习 Unit 1 全部内容', '完成 Unit 1 单元小测评'],
@@ -449,11 +504,7 @@ export const LESSONS = [
     tags: ['新授'],
     reviewNote: '',
     reviewWords: [],
-    newWords: [
-      { word: 'balloons', zh: '气球', emoji: '🎈' },
-      { word: 'party hats', zh: '派对帽', emoji: '🥳' },
-      { word: 'ribbons', zh: '丝带', emoji: '🎀' },
-    ],
+    newWords: PARTY_WORDS_1,
     phonics: { letters: [], note: '' },
     commands: [],
     sentences: [],
@@ -471,13 +522,9 @@ export const LESSONS = [
     title: '字母 Dd 拼读',
     focus: ['字母 Dd', '代表单词'],
     tags: ['新授'],
-    reviewNote: 'Unit 2 主题单词',
-    reviewWords: [],
-    newWords: [
-      { word: 'dog', zh: '狗', emoji: '🐶' },
-      { word: 'duck', zh: '鸭子', emoji: '🦆' },
-      { word: 'desk', zh: '课桌', emoji: '🪑' },
-    ],
+    reviewNote: 'Unit 2 主题单词（课时 9）',
+    reviewWords: PARTY_WORDS_1,
+    newWords: DD_WORDS,
     phonics: { letters: ['Dd'], note: 'big D, small d · D D D d d d' },
     commands: [],
     sentences: [],
@@ -498,13 +545,10 @@ export const LESSONS = [
     title: '生日派对主题词 2',
     focus: ['Unit 2 主题单词', '食物与礼物'],
     tags: ['新授'],
-    reviewNote: '',
-    reviewWords: [],
-    newWords: [
-      { word: 'sweets', zh: '糖果', emoji: '🍬' },
-      { word: 'sandwiches', zh: '三明治', emoji: '🥪' },
-      { word: 'presents', zh: '礼物', emoji: '🎁' },
-    ],
+    reviewNote: 'Unit 2 主题单词 + 课时 10：字母 Dd 与代表单词',
+    reviewWords: DD_WORDS,
+    reviewPhonics: ['Dd'],
+    newWords: PARTY_WORDS_2,
     phonics: { letters: [], note: '' },
     commands: [],
     sentences: [],

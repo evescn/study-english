@@ -21,38 +21,27 @@
         </view>
       </view>
 
-      <!-- 复习内容 -->
-      <view class="card" v-if="lesson.reviewNote || lesson.reviewWords.length">
+      <!-- 复习内容（复习字母排在复习单词前面） -->
+      <view class="card" v-if="lesson.reviewNote || lesson.reviewWords.length || reviewPhonics.length || reviewSentences.length">
         <text class="card-title">🔁 复习内容</text>
         <text class="review-note" v-if="lesson.reviewNote">{{ lesson.reviewNote }}</text>
+        <letter-sounds v-if="reviewPhonics.length" :letters="reviewPhonics" :color="heroColor" />
+        <text class="review-phonics-note" v-if="lesson.reviewPhonicsNote">{{ lesson.reviewPhonicsNote }}</text>
         <word-chips :words="lesson.reviewWords" />
+        <text class="review-subtitle" v-if="reviewSentences.length">复习句型</text>
+        <view class="sentence-row" v-for="s in reviewSentences" :key="s.en">
+          <view class="sentence-main">
+            <text class="sentence-en">{{ s.en }}</text>
+            <text class="sentence-zh" v-if="s.zh">{{ s.zh }}</text>
+          </view>
+          <text class="sentence-spk" @click="say(s.en)">🔊</text>
+        </view>
       </view>
 
-      <!-- 字母拼读 -->
+      <!-- 新学字母拼读 -->
       <view class="card" v-if="lesson.phonics.letters.length">
         <text class="card-title">🔤 字母拼读</text>
-        <view class="letter-badges">
-          <view class="letter-card" v-for="l in lesson.phonics.letters" :key="l">
-            <view class="case-col">
-              <view class="letter-hit" hover-class="letter-press" hover-stay-time="100" @click="playLetterName(l, 'big')">
-                <text class="lb-upper" :style="{ color: heroColor }">{{ l[0] }}</text>
-              </view>
-              <view class="sound-hit" hover-class="letter-press" hover-stay-time="100" @click="playLetterSound(l)">
-                <text class="sound-icon">🔊</text>
-                <text class="lb-ipa">{{ soundOf(l).ipa }}</text>
-              </view>
-            </view>
-            <view class="case-col">
-              <view class="letter-hit" hover-class="letter-press" hover-stay-time="100" @click="playLetterName(l, 'small')">
-                <text class="lb-lower" :style="{ color: heroColor }">{{ l[1] }}</text>
-              </view>
-              <view class="sound-hit" hover-class="letter-press" hover-stay-time="100" @click="playLetterSound(l)">
-                <text class="sound-icon">🔊</text>
-                <text class="lb-ipa">{{ soundOf(l).ipa }}</text>
-              </view>
-            </view>
-          </view>
-        </view>
+        <letter-sounds :letters="lesson.phonics.letters" :color="heroColor" />
         <text class="phonics-note">{{ lesson.phonics.note ? lesson.phonics.note + ' · ' : '' }}点字母听名称，点 🔊 听字母音</text>
       </view>
 
@@ -119,9 +108,9 @@
 
 <script>
 import { PREP, getLesson, getUnit } from '@/data/lessons.js'
-import { getLetterSound } from '@/data/phonics.js'
-import { speak, speakLetterSound, stopAudio } from '@/animations/audio.js'
+import { speak, stopAudio } from '@/animations/audio.js'
 import WordChips from '@/components/WordChips.vue'
+import LetterSounds from '@/components/LetterSounds.vue'
 
 function tint(hex, ratio) {
   const n = parseInt(hex.slice(1), 16)
@@ -133,13 +122,19 @@ function tint(hex, ratio) {
 }
 
 export default {
-  components: { WordChips },
+  components: { WordChips, LetterSounds },
   data() {
     return {
       lesson: null,
     }
   },
   computed: {
+    reviewPhonics() {
+      return (this.lesson && this.lesson.reviewPhonics) || []
+    },
+    reviewSentences() {
+      return (this.lesson && this.lesson.reviewSentences) || []
+    },
     unit() {
       if (!this.lesson || this.lesson.unitId === 0) return null
       return getUnit(this.lesson.unitId)
@@ -175,20 +170,6 @@ export default {
     stopAudio()
   },
   methods: {
-    playLetterName(letter, variant) {
-      if (variant === 'small') {
-        speak(`Small ${letter[1]}`)
-      } else {
-        speak(`Big ${letter[0]}`)
-      }
-    },
-    playLetterSound(letter) {
-      const sound = getLetterSound(letter[0])
-      speakLetterSound(letter[0], sound.say)
-    },
-    soundOf(letter) {
-      return getLetterSound(letter[0])
-    },
     say(text) {
       speak(text)
     },
@@ -302,76 +283,20 @@ export default {
   margin-bottom: 16rpx;
 }
 
-/* ===== 字母 ===== */
-.letter-badges {
-  display: flex;
-  flex-wrap: wrap;
+/* ===== 复习字母 ===== */
+.review-phonics-note {
+  display: block;
+  margin: -4rpx 0 12rpx;
+  font-size: 23rpx;
+  color: #8a94a8;
 }
 
-.letter-card {
-  display: flex;
-  align-items: stretch;
-  padding: 12rpx 14rpx;
-  margin: 0 14rpx 14rpx 0;
-  border-radius: 20rpx;
-  background: linear-gradient(160deg, #f4f9ff 0%, #ffffff 100%);
-  border: 2rpx solid #dbe9ff;
-}
-
-.case-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 8rpx;
-}
-
-.case-col + .case-col {
-  border-left: 2rpx dashed #e3edfb;
-  margin-left: 6rpx;
-  padding-left: 14rpx;
-}
-
-.letter-hit {
-  padding: 2rpx 8rpx;
-  border-radius: 12rpx;
-}
-
-.sound-hit {
-  display: flex;
-  align-items: center;
-  margin-top: 8rpx;
-  padding: 6rpx 14rpx;
-  border-radius: 14rpx;
-  background: #eef5ff;
-}
-
-.letter-press {
-  transform: scale(0.9);
-  background: #eaf3ff;
-}
-
-.lb-upper {
-  font-size: 44rpx;
+.review-subtitle {
+  display: block;
+  margin: 8rpx 0 2rpx;
+  font-size: 24rpx;
   font-weight: bold;
-  line-height: 1;
-}
-
-.lb-lower {
-  font-size: 32rpx;
-  font-weight: bold;
-  line-height: 1;
-  opacity: 0.78;
-}
-
-.sound-icon {
-  font-size: 20rpx;
-  margin-right: 5rpx;
-  opacity: 0.7;
-}
-
-.lb-ipa {
-  font-size: 21rpx;
-  color: #5c6b85;
+  color: #4a5568;
 }
 
 .phonics-note {
