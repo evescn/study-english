@@ -38,16 +38,35 @@
         </view>
         <view class="word-row">
           <text class="word">{{ word.word }}</text>
-          <text class="speaker">🔊</text>
+          <view class="spk-wrap" @click.stop="playWord(i)">
+            <view class="eq" v-if="playing[i]">
+              <view class="eq-bar b1"></view>
+              <view class="eq-bar b2"></view>
+              <view class="eq-bar b3"></view>
+              <view class="eq-bar b4"></view>
+            </view>
+          </view>
         </view>
-        <text class="zh">{{ word.zh }}</text>
+        <view class="zh-badge">
+          <text class="zh-pen">✏️</text>
+          <text class="zh" :style="{ color: letter.color }">{{ word.zh }}</text>
+        </view>
       </view>
     </view>
 
     <view class="controls">
-      <view class="btn btn-primary" @click="playAll">▶ 全部播放</view>
-      <view class="btn" @click="go('prev')">◀ 上一个</view>
-      <view class="btn" @click="go('next')">下一个 ▶</view>
+      <view class="btn btn-side btn-prev" @click="go('prev')">
+        <view class="btn-icon"><view class="tri-left"></view></view>
+        <text>上一个</text>
+      </view>
+      <view class="btn btn-play" @click="playAll">
+        <view class="btn-icon"><view class="tri-play"></view></view>
+        <text>全部播放</text>
+      </view>
+      <view class="btn btn-side btn-next" @click="go('next')">
+        <text>下一个</text>
+        <view class="btn-icon"><view class="tri-right"></view></view>
+      </view>
     </view>
 
     <!-- 学完庆祝彩带 -->
@@ -59,7 +78,7 @@
 
 <script>
 import { LETTERS } from '@/data/letters.js'
-import { speak } from '@/animations/audio.js'
+import { speak, speakCongrats, stopVictoryMusic } from '@/animations/audio.js'
 
 const CONFETTI_CHARS = ['🎉', '✨', '⭐', '🎊', '💖']
 
@@ -69,6 +88,7 @@ export default {
       index: 0,
       letter: null,
       plays: [0, 0, 0],
+      playing: [false, false, false],
       bubbles: [],
       celebrate: false,
       confettiPieces: [],
@@ -92,6 +112,9 @@ export default {
         })
       }, 1200)
     }
+  },
+  onUnload() {
+    stopVictoryMusic()
   },
   methods: {
     isLetterCompleted(letter) {
@@ -117,6 +140,7 @@ export default {
     setLetter() {
       this.letter = LETTERS[this.index]
       this.plays = [0, 0, 0]
+      this.playing = [false, false, false]
       this.celebrate = false
       this.bubbles = Array.from({ length: 8 }, (_, i) => ({
         id: i,
@@ -132,8 +156,17 @@ export default {
     sayLower() {
       speak(`Small ${this.letter.lower}`)
     },
+    flashSpeaker(i) {
+      this.playing[i] = true
+      this._spkTimers = this._spkTimers || []
+      clearTimeout(this._spkTimers[i])
+      this._spkTimers[i] = setTimeout(() => {
+        this.playing[i] = false
+      }, 1700)
+    },
     playWord(i) {
       this.plays[i] += 1
+      this.flashSpeaker(i)
       speak(this.letter.words[i].word)
       this.checkCelebrate()
     },
@@ -144,6 +177,7 @@ export default {
           return
         }
         this.plays[i] += 1
+        this.flashSpeaker(i)
         speak(this.letter.words[i].word)
         setTimeout(() => run(i + 1), 1700)
       }
@@ -151,7 +185,13 @@ export default {
     },
     checkCelebrate() {
       if (this.plays.every((p) => p > 0)) {
-        this.markCompleted()
+        const completed = uni.getStorageSync('completed') || {}
+        if (!completed[this.letter.letter]) {
+          this.markCompleted()
+          setTimeout(() => {
+            speakCongrats(this.letter.letter)
+          }, 700)
+        }
       }
       if (!this.celebrate && this.plays.every((p) => p > 0)) {
         this.celebrate = true
@@ -320,10 +360,12 @@ export default {
 }
 
 .word-card {
+  position: relative;
   background-color: #ffffff;
   border-radius: 30rpx;
   overflow: hidden;
   margin-bottom: 26rpx;
+  padding-bottom: 30rpx;
   box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.08);
 }
 
@@ -401,43 +443,169 @@ export default {
   color: #333333;
 }
 
-.speaker {
+.spk-wrap {
+  display: flex;
+  align-items: center;
   margin-left: 14rpx;
-  font-size: 34rpx;
-  animation: kf-floaty 1.6s ease-in-out infinite;
+}
+
+.eq {
+  display: flex;
+  align-items: center;
+  margin-left: 8rpx;
+  height: 48rpx;
+}
+
+.eq-bar {
+  width: 6rpx;
+  height: 18rpx;
+  margin-right: 5rpx;
+  border-radius: 4rpx;
+  background: #006ff2;
+  animation: kf-eq 0.8s ease-in-out infinite;
+}
+
+.eq-bar.b2 {
+  animation-delay: 0.1s;
+}
+
+.eq-bar.b3 {
+  animation-delay: 0.2s;
+}
+
+.eq-bar.b4 {
+  animation-delay: 0.3s;
+}
+
+@keyframes kf-eq {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  30% {
+    transform: scaleY(1.25);
+  }
+  60% {
+    transform: scaleY(0.6);
+  }
+  80% {
+    transform: scaleY(1.1);
+  }
+}
+
+.zh-badge {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 0 190rpx 0 0;
+  background: #fff8f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 30rpx;
+  padding-right: 24rpx;
+}
+
+.zh-pen {
+  font-size: 26rpx;
+  margin-right: 6rpx;
+  margin-top: 10rpx;
 }
 
 .zh {
-  text-align: center;
-  font-size: 26rpx;
-  color: #999999;
-  margin: 6rpx 0 20rpx;
+  font-size: 30rpx;
+  font-weight: bold;
   padding-left: 12rpx;
+  margin-top: 50rpx;
+  animation: kf-twinkle 2s ease-in-out infinite;
 }
 
 /* ===== 底部控制 ===== */
 .controls {
   display: flex;
-  justify-content: space-between;
-  margin-top: 6rpx;
+  margin-top: 24rpx;
 }
 
 .btn {
   flex: 1;
-  background-color: #4a90d9;
-  color: #ffffff;
-  text-align: center;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 30rpx;
-  padding: 20rpx 0;
-  border-radius: 36rpx;
-  margin: 0 8rpx;
-  box-shadow: 0 6rpx 12rpx rgba(74, 144, 217, 0.3);
+  font-weight: 600;
+  letter-spacing: 2rpx;
+  border-radius: 24rpx;
+  transition: transform 0.15s ease;
 }
 
-.btn-primary {
-  background-color: #ff6b6b;
-  box-shadow: 0 6rpx 12rpx rgba(255, 107, 107, 0.35);
+.btn:active {
+  transform: scale(0.94);
 }
+
+.btn-play {
+  flex: 1.4;
+  margin: 0 16rpx;
+  background: #ff8a5c;
+  color: #ffffff;
+}
+
+.btn-side {
+  background: #ffffff;
+  color: #6b7a99;
+  border: 2rpx solid #e6ecf7;
+}
+
+.btn-icon {
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 10rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-play .btn-icon {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.btn-side .btn-icon {
+  background: #eef3fc;
+}
+
+.btn-next .btn-icon {
+  margin-right: 0;
+  margin-left: 10rpx;
+}
+
+.tri-play {
+  width: 0;
+  height: 0;
+  margin-left: 4rpx;
+  border-left: 12rpx solid #ffffff;
+  border-top: 8rpx solid transparent;
+  border-bottom: 8rpx solid transparent;
+}
+
+.tri-left {
+  width: 0;
+  height: 0;
+  border-right: 12rpx solid #6b7a99;
+  border-top: 8rpx solid transparent;
+  border-bottom: 8rpx solid transparent;
+}
+
+.tri-right {
+  width: 0;
+  height: 0;
+  border-left: 12rpx solid #6b7a99;
+  border-top: 8rpx solid transparent;
+  border-bottom: 8rpx solid transparent;
+}
+
 
 /* ===== 庆祝彩带 ===== */
 .confetti {

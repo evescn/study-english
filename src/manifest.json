@@ -1,8 +1,8 @@
 {
-    "name" : "ABC 字母乐园",
+    "name" : "字母乐园",
     "appid" : "__UNI__16EB303",
     "description" : "2-6岁儿童英文字母动画启蒙",
-    "versionName" : "1.0.0",
+    "versionName" : "1.0.1",
     "versionCode" : "100",
     "transformPx" : false,
     /* 5+App特有相关 */
@@ -47,6 +47,17 @@
             /* SDK配置 */
             "sdkConfigs" : {
                 "ad" : {}
+            },
+            "icons" : {
+                "android" : {
+                    "hdpi" : "src/static/icon/icon-72.png",
+                    "xhdpi" : "src/static/icon/icon-96.png",
+                    "xxhdpi" : "src/static/icon/icon-144.png",
+                    "xxxhdpi" : "src/static/icon/icon-192.png"
+                },
+                "ios" : {
+                    "appstore" : "src/static/icon/icon-1024.png"
+                }
             }
         }
     },

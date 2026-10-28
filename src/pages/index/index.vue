@@ -19,25 +19,92 @@
         <text class="subtitle">点一个字母，开始学习吧！</text>
       </view>
     </view>
-    <view class="grid">
+
+    <!-- 模块导航：字母 / 句子 / 视频 / 音频 -->
+    <view class="tabbar">
       <view
-        class="tile"
-        :class="{ 'tile-locked': isLocked(item) }"
-        v-for="item in letters"
-        :key="item.letter"
-        :style="{ background: tileBg(item) }"
-        hover-class="tile-press"
-        hover-stay-time="120"
-        @click="openLetter(item.letter)"
+        class="tab"
+        :class="{ active: activeTab === t.key }"
+        v-for="t in tabs"
+        :key="t.key"
+        @click="activeTab = t.key"
       >
-        <text class="tile-emoji">{{ item.words[0].emoji }}</text>
-        <view class="tile-inner">
-          <text class="upper">{{ item.letter }}</text>
-          <text class="lower">{{ item.lower }}</text>
+        <image v-if="t.img" class="tab-img" :src="t.img" mode="aspectFit" />
+        <text v-else class="tab-icon">{{ t.icon }}</text>
+        <text class="tab-label">{{ t.label }}</text>
+      </view>
+    </view>
+
+    <!-- 字母模块（原有功能不变） -->
+    <view v-if="activeTab === 'letters'">
+      <view class="grid">
+        <view
+          class="tile"
+          :class="{ 'tile-locked': isLocked(item) }"
+          v-for="item in letters"
+          :key="item.letter"
+          :style="{ background: tileBg(item) }"
+          hover-class="tile-press"
+          hover-stay-time="120"
+          @click="openLetter(item.letter)"
+        >
+          <text class="tile-emoji">{{ item.words[0].emoji }}</text>
+          <view class="tile-inner">
+            <text class="upper">{{ item.letter }}</text>
+            <text class="lower">{{ item.lower }}</text>
+          </view>
+          <text v-if="isLocked(item)" class="lock">🔒</text>
+          <text v-else-if="isCompleted(item)" class="done">✓</text>
+          <text v-else-if="visited[item.letter]" class="star">★</text>
         </view>
-        <text v-if="isLocked(item)" class="lock">🔒</text>
-        <text v-else-if="isCompleted(item)" class="done">✓</text>
-        <text v-else-if="visited[item.letter]" class="star">★</text>
+      </view>
+    </view>
+
+    <!-- 句子模块 -->
+    <view v-else-if="activeTab === 'sentences'" class="module">
+      <view class="module-head">
+        <image class="module-icon-img" src="/static/icon/tab-sentences.png" mode="aspectFit" />
+        <view class="module-head-txt">
+          <text class="module-title">句子</text>
+          <text class="module-sub">边看动画边读句子，培养语感</text>
+        </view>
+      </view>
+      <view class="module-empty">
+        <text class="me-emoji">✨</text>
+        <text class="me-title">句子模块筹备中</text>
+        <text class="me-desc">有趣的句子学习内容马上就来，敬请期待～</text>
+      </view>
+    </view>
+
+    <!-- 视频模块 -->
+    <view v-else-if="activeTab === 'videos'" class="module">
+      <view class="module-head">
+        <image class="module-icon-img" src="/static/icon/tab-video.png" mode="aspectFit" />
+        <view class="module-head-txt">
+          <text class="module-title">视频</text>
+          <text class="module-sub">字母动画视频，看着学更开心</text>
+        </view>
+      </view>
+      <view class="module-empty">
+        <text class="me-emoji">🎈</text>
+        <text class="me-title">视频模块筹备中</text>
+        <text class="me-desc">好玩的字母动画视频很快上线，敬请期待～</text>
+      </view>
+    </view>
+
+    <!-- 音频模块 -->
+    <view v-else class="module">
+      <view class="module-head">
+        <image class="module-icon-img" src="/static/icon/tab-audio.png" mode="aspectFit" />
+        <view class="module-head-txt">
+          <text class="module-title">音频</text>
+          <text class="module-sub">字母歌、单词朗读，随时随地听</text>
+        </view>
+      </view>
+      <view class="module-empty">
+        <text class="me-emoji">🎵</text>
+        <text class="me-title">音频模块筹备中</text>
+        <text class="me-desc">字母歌和单词朗读马上就来，敬请期待～</text>
       </view>
     </view>
   </view>
@@ -53,6 +120,13 @@ export default {
       completed: {},
       titleChars: ['A', 'B', 'C'],
       titleColors: ['#FF6B6B', '#FF9F43', '#26DE81'],
+      activeTab: 'letters',
+      tabs: [
+        { key: 'letters', icon: '🔤', img: '/static/icon/tab-letters.png', label: '字母' },
+        { key: 'sentences', icon: '📖', img: '/static/icon/tab-sentences.png', label: '句子' },
+        { key: 'videos', icon: '🎬', img: '/static/icon/tab-video.png', label: '视频' },
+        { key: 'audio', icon: '🎵', img: '/static/icon/tab-audio.png', label: '音频' },
+      ],
     }
   },
   onShow() {
@@ -197,6 +271,115 @@ export default {
   animation-delay: 0.5s;
 }
 
+/* ===== 模块导航 ===== */
+.tabbar {
+  display: flex;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 28rpx;
+  padding: 12rpx;
+  margin-bottom: 26rpx;
+  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14rpx 0;
+  border-radius: 20rpx;
+  transition: background 0.2s ease;
+}
+
+.tab.active {
+  background: linear-gradient(135deg, #6ec9ff 0%, #a5e3ff 100%);
+}
+
+.tab-icon {
+  font-size: 40rpx;
+}
+
+.tab-img {
+  width: 46rpx;
+  height: 46rpx;
+}
+
+.tab-label {
+  margin-top: 4rpx;
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #8a8fa3;
+}
+
+.tab.active .tab-label {
+  color: #ffffff;
+}
+
+/* ===== 模块占位 ===== */
+.module-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.module-icon {
+  font-size: 56rpx;
+  margin-right: 18rpx;
+}
+
+.module-icon-img {
+  width: 64rpx;
+  height: 64rpx;
+  margin-right: 18rpx;
+}
+
+.module-head-txt {
+  display: flex;
+  flex-direction: column;
+}
+
+.module-title {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333333;
+}
+
+.module-sub {
+  font-size: 24rpx;
+  color: #999999;
+  margin-top: 6rpx;
+}
+
+.module-empty {
+  background: #ffffff;
+  border-radius: 28rpx;
+  border: 2rpx dashed #ffc3a0;
+  padding: 60rpx 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+
+.me-emoji {
+  font-size: 90rpx;
+  animation: kf-twinkle 1.6s ease-in-out infinite;
+}
+
+.me-title {
+  margin-top: 20rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #ff8a5c;
+}
+
+.me-desc {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #999999;
+  text-align: center;
+}
+
 .grid {
   display: flex;
   flex-wrap: wrap;
@@ -252,7 +435,6 @@ export default {
   right: 12rpx;
   font-size: 46rpx;
   z-index: 2;
-  animation: kf-floaty 2.6s ease-in-out infinite;
 }
 
 
@@ -269,6 +451,7 @@ export default {
   color: rgba(255, 255, 255, 0.92);
   line-height: 1.3;
   text-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.12);
+  animation: kf-twinkle 1s ease-in-out infinite;
 }
 
 .star {
